@@ -9,5 +9,6 @@ export const Images = {
     save: require("../assets/icons/save.png"),
     saved: require("../assets/icons/saved.png"),
     send: require("../assets/icons/send.png"),
-    option: require("../assets/icons/option.png")
+    option: require("../assets/icons/option.png"),
+    logo_main:"https://cdn2.iconfinder.com/data/icons/social-media-2285/512/1_Instagram_colored_svg_1-512.png"
 }
