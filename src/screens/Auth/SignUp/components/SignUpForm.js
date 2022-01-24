@@ -1,10 +1,11 @@
 import React from 'react'
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import Validator from 'email-validator'
 import { ROUTES } from '../../../../navigation/Route'
 import { useNavigation } from '@react-navigation/native'
+import {firebase,db} from '../../../../api/firebase/config';
 
 const SignUpForm = () => {
 
@@ -16,12 +17,34 @@ const SignUpForm = () => {
         password: Yup.string().min(6, "Your password has to have at least 8 characters")
     })
 
+    const getRandomProfilePic =  async()=>{
+        const res = await fetch("https://randomuser.me/api")
+        const data = await res.json()
+        return data.results[0].picture.large
+    }
+
+    const onSignUp = async(email,username,password)=>{
+        try {
+         const userRegister =  await firebase.auth().createUserWithEmailAndPassword(email,password)
+            console.log("✔Đăng kí thành công", email,password)
+            db.collection("users").add({
+                owner_uid:userRegister.user.uid,
+                username:username,
+                email:userRegister.user.email,
+                profile_picture:await getRandomProfilePic()
+            })
+        } catch (error) {
+            console.log("EEE",error)
+            Alert.alert(error.message)
+        }
+    }
+
     return (
         <View style={styles.wrapper}>
             <Formik
                 initialValues={{ email: "", username: "", password: "" }}
                 validationSchema={SignUpFormSchema}
-                onSubmit={(values) => { console.log(values) }}
+                onSubmit={(values) => onSignUp(values.email,values.username,values.password)}
                 validateOnMount={true}
             >
                 {({ handleBlur, handleChange, handleSubmit, values, errors, isValid }) => (

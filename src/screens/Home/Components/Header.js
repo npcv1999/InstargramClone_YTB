@@ -3,13 +3,22 @@ import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { ROUTES } from '../../../navigation/Route'
 import { Images } from '../../../utils/images'
+import {firebase} from '../../../api/firebase/config';
+
+const handleSignOut = async()=>{
+    try {
+        await firebase.auth().signOut()
+        console.log("Signed out success")
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 
 const Header = () => {
-
     const navigation = useNavigation()
     return (
         <View style={styles.container}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>handleSignOut()}>
                 <Image style={styles.logoHeader} source={Images.logoHeader} resizeMode='contain'></Image>
             </TouchableOpacity>
             <View style={styles.containerBtn}>

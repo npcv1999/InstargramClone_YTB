@@ -1,10 +1,11 @@
 import React from 'react'
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, TextInput, StyleSheet, TouchableOpacity,Alert } from 'react-native'
 import { Formik } from 'formik'
 import * as Yup from 'yup'
 import Validator from 'email-validator'
 import { useNavigation } from '@react-navigation/native'
 import { ROUTES } from '../../../../navigation/Route'
+import {firebase,db} from '../../../../api/firebase/config'
 
 const LoginForm = () => {
 
@@ -14,12 +15,30 @@ const LoginForm = () => {
         password: Yup.string().min(6, "Your password has to have at least 8 characters")
     })
 
+    const onLogin =  async(email,password)=>{
+        try {
+            await firebase.auth().signInWithEmailAndPassword(email, password)
+            console.log("💕Firebase login success",email,password)
+        } catch (error) {
+            Alert.alert("Thông báo", "Tài khoản và mật khẩu không đúng!!! \n\nBạn chưa có tài khoản? Đăng ký ngay",[
+                {
+                    text:"Xác nhận",
+                    onPress:()=>console.log("Ok"),
+                    style:"cancel"
+                },{
+                    text:"Đăng ký",
+                    onPress:()=>navigation.navigate(ROUTES.SignUp)
+                }
+            ])
+        }
+    }
+
     return (
         <View style={styles.wrapper}>
             <Formik
                 initialValues={{ email: "", password: "" }}
                 validationSchema={LoginFormSchema}
-                onSubmit={(values) => { console.log(values) }}
+                onSubmit={(values) => onLogin(values.email,values.password)}
                 validateOnMount={true}
             >
                 {({ handleBlur, handleChange, handleSubmit, values, errors, isValid }) => (
