@@ -1,6 +1,7 @@
 import React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Divider } from 'react-native-elements'
+import { db,firebase } from '../../../../api/firebase/config'
 import { Images } from '../../../../utils/images'
 
 const posterFooterIcons = [
@@ -46,11 +47,16 @@ const PostImg = ({ post }) => {
     )
 }
 
-const PostFooter = () => {
+const PostFooter = ({post,handleLike}) => {
     return (
         <View style={{ flexDirection: "row" }}>
             <View style={styles.leftFooterIcon}>
-                <Icons imgStyle={styles.footerIcon} imgUrl={posterFooterIcons[0].imageUrl}></Icons>
+                <Icons 
+                onPress={()=>handleLike(post)} 
+                imgStyle={styles.footerIcon} 
+                imgUrl={post.likes_by_user.includes(firebase.auth().currentUser.email) 
+                ? posterFooterIcons[0].likedImageUrl 
+                : posterFooterIcons[0].imageUrl}></Icons>
                 <Icons imgStyle={styles.footerIcon} imgUrl={posterFooterIcons[1].imageUrl}></Icons>
                 <Icons imgStyle={styles.footerIcon} imgUrl={posterFooterIcons[2].imageUrl}></Icons>
             </View>
@@ -60,9 +66,9 @@ const PostFooter = () => {
         </View>
     )
 }
-const Icons = ({ imgStyle, imgUrl }) => {
+const Icons = ({ imgStyle, imgUrl ,onPress}) => {
     return (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onPress} >
             <Image style={imgStyle} source={imgUrl}></Image>
         </TouchableOpacity>
     )
@@ -70,7 +76,7 @@ const Icons = ({ imgStyle, imgUrl }) => {
 
 const Likes = ({ post }) => (
     <Text style={{ color: "white", marginTop: 6 }}>
-        {post.likes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} lượt thích
+        {post.likes_by_user.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} lượt thích
     </Text>
 )
 
@@ -110,13 +116,26 @@ const Comments = ({ post }) => {
 }
 
 const Post = ({ post }) => {
+
+    const handleLike = (item) =>{
+        console.log("Item",item)
+        const currentLikedStatus = !item.likes_by_user.includes(
+            firebase.auth().currentUser.email
+        )
+        db.collection("users").doc(item.owner_email).collection("posts").doc(item.id).update({
+            likes_by_user:currentLikedStatus 
+            ? firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.email) 
+            : firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.email) 
+        }).then(()=>console.log("THÀNH CÔNG")).catch((err)=>console.log("Lỗi",err))
+    }
+
     return (
         <View style={{ marginVertical: 15 }}>
             <Divider width={1} orientation='vertical'></Divider>
             <PostHeader post={post}></PostHeader>
             <PostImg post={post}></PostImg>
             <View style={{ margin: 10, marginTop: 20 }}>
-                <PostFooter />
+                <PostFooter post={post} handleLike={handleLike} />
                 <Likes post={post} />
                 <Caption post={post} />
                 <CommentSection post={post} />

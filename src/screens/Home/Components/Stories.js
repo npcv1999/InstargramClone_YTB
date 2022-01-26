@@ -9,7 +9,7 @@ const Stories = () => {
                 {USER.map((item, index) => (
                     <View key={index} style={styles.containerStories} >
                         <Image style={styles.storyImg} source={{ uri: item.image }}></Image>
-                        <Text style={{ color: "white" }}>{item.user.length > 10 ? item.user.slice(0, 10).toLowerCase() + '...' : item.user.toLowerCase()}</Text>
+                        <Text style={{ color: "white" }}>{item.user.length > 10 ? item.user.slice(0, 6).toLowerCase() + '...' : item.user.toLowerCase()}</Text>
                     </View>))}
             </ScrollView>
         </View>
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 40,
-        marginLeft: 6,
+        marginLeft: 16,
         borderWidth: 3,
         borderColor: "#ff8501"
     }

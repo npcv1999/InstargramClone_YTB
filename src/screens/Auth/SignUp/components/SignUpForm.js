@@ -27,7 +27,10 @@ const SignUpForm = () => {
         try {
          const userRegister =  await firebase.auth().createUserWithEmailAndPassword(email,password)
             console.log("✔Đăng kí thành công", email,password)
-            db.collection("users").add({
+            db
+            .collection("users")
+            .doc(userRegister.user.email)
+            .set({
                 owner_uid:userRegister.user.uid,
                 username:username,
                 email:userRegister.user.email,
